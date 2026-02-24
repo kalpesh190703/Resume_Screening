@@ -31,18 +31,18 @@
 ### **Task 4**
 
 **Member:** Kalpesh
-**Role:** —Skill Gap Analysis
-**Input:** —Extracted skills (Resume + JD) , Resume score , Threshold value 
-**Output:** — Improvement recommendations for low-scoring resumes
+**Role:** —
+**Input:** — 
+**Output:** — 
 
 ---
 
 ### **Task 5**
 
 **Member:** Sanika Mulay 
-**Role:** —
-**Input:** —
-**Output:** —
+**Role:** —Skill Gap Analysis
+**Input:** —Extracted skills (Resume + JD) , Resume score , Threshold value
+**Output:** —Improvement recommendations for low-scoring resumes
 
 ---
 

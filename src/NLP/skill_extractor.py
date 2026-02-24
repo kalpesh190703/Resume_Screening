@@ -1,12 +1,29 @@
+
 import os
 import json
 from dotenv import load_dotenv
 from groq import Groq
 
+# ---------------- SETUP ----------------
 load_dotenv()
-
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-def resume_text_to_json(resume_text):
+
+BASE_DIR = "../../data"
+INPUT_DIR = os.path.join(BASE_DIR, "input")
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+RESUME_FILE = os.path.join(INPUT_DIR, "resume1.txt")
+JD_FILE = os.path.join(INPUT_DIR, "jd.txt")
+
+# ---------------- FILE READER ----------------
+def read_text_file(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+# ---------------- LLM JSON EXTRACTION ----------------
+def extract_structured_json(text):
     completion = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
@@ -20,79 +37,96 @@ def resume_text_to_json(resume_text):
                     "- No trailing commas\n"
                     "- No comments\n"
                     "- No explanation text\n\n"
-                   "Schema:\n"
-                        "{"
-                        "\"skills\": [], "
-                        "\"tools\": [], "
-                        "\"experience_years\": {\"min\": null, \"max\": null}, "
-                        "\"domains\": []"
-                        "}"
+                    "Schema:\n"
+                    "{"
+                    "\"name\": \"\", "
+                    "\"email\": \"\", "
+                    "\"skills\": [], "
+                    "\"tools\": [], "
+                    "\"education\": \"\", "
+                    "\"experience_years\": 0"
+                    "}"
                 )
             },
-            {
-                "role": "user",
-                "content": resume_text
-            }
+            {"role": "user", "content": text}
         ],
         temperature=0
     )
 
     raw = completion.choices[0].message.content.strip()
 
-    # --- SAFE JSON EXTRACTION ---
-    start = raw.find("{")
-    end = raw.rfind("}") + 1
+    # ---- SAFE JSON EXTRACTION ----
+    start, end = raw.find("{"), raw.rfind("}") + 1
+    if start == -1 or end == -1:
+        raise ValueError(f"No JSON found:\n{raw}")
+
+    json_str = raw[start:end].replace(",}", "}").replace(",]", "]")
+    return json.loads(json_str)
+
+def extract_jd_json(text):
+    completion = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a strict JSON generator.\n"
+                    "Return ONLY valid JSON.\n"
+                    "Rules:\n"
+                    "- All keys must be in double quotes\n"
+                    "- No trailing commas\n"
+                    "- No comments\n"
+                    "- No explanation text\n\n"
+                    "Schema:\n"
+                    "{"
+                    "\"skills\": [], "
+                    "\"min_experience_years\": 0, "
+                    "\"keywords\": []"
+                    "}"
+                )
+            },
+            {"role": "user", "content": text}
+        ],
+        temperature=0
+    )
+
+    raw = completion.choices[0].message.content.strip()
+    start, end = raw.find("{"), raw.rfind("}") + 1
 
     if start == -1 or end == -1:
-        raise ValueError(f"No JSON object found:\n{raw}")
+        raise ValueError(f"No JSON found:\n{raw}")
 
-    json_str = raw[start:end]
+    json_str = raw[start:end].replace(",}", "}").replace(",]", "]")
+    return json.loads(json_str)
+# ---------------- PROCESSORS ----------------
+def process_resume():
+    text = read_text_file(RESUME_FILE)
+    data = extract_structured_json(text)
 
-    # --- JSON SANITIZATION ---
-    json_str = json_str.replace(",}", "}")
-    json_str = json_str.replace(",]", "]")
+    out_path = os.path.join(OUTPUT_DIR, "resume.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
-    try:
-        return json.loads(json_str)
-    except json.JSONDecodeError as e:
-        raise ValueError(
-            f"Invalid JSON returned by model:\n{json_str}"
-        ) from e
-    
+    return data
 
+def process_jd():
+    text = read_text_file(JD_FILE)
+    data = extract_jd_json(text)
+
+    out_path = os.path.join(OUTPUT_DIR, "jd.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    print("✅ JD saved at:", os.path.abspath(out_path))
+    return data
+
+# ---------------- RUN ----------------
 if __name__ == "__main__":
-
-    resume_text = """
-    Python Developer with 2 years of experience.
-    Worked on machine learning models and data analysis projects.
-    Strong in Python, SQL, Git, and TensorFlow.
-    """
-
-    jd_data_scientist = """
-    We are hiring a Data Scientist.
-    Strong Python and SQL.
-    Experience with Machine Learning algorithms.
-    Data analysis and feature engineering.
-    Tools: Git, TensorFlow.
-    """
-
-    jd_backend = """
-    We are looking for a Backend Engineer.
-    Strong Python.
-    Experience with REST APIs.
-    Django or Flask framework.
-    Database knowledge and Docker.
-    """
-
-    resume_json = resume_text_to_json(resume_text)
-    jd_ds_json = resume_text_to_json(jd_data_scientist)
-    jd_backend_json = resume_text_to_json(jd_backend)
+    resume_json = process_resume()
+    jd_json = process_jd()           # new format
 
     print("RESUME JSON:")
     print(json.dumps(resume_json, indent=2))
 
-    print("\nJD 1 – DATA SCIENTIST JSON:")
-    print(json.dumps(jd_ds_json, indent=2))
-
-    print("\nJD 2 – BACKEND ENGINEER JSON:")
-    print(json.dumps(jd_backend_json, indent=2))
+    print("\nJD JSON:")
+    print(json.dumps(jd_json, indent=2))

@@ -24,13 +24,13 @@
 **Member:** Tushar
 **Role:** Scoring & Recommendation Engineer
 **Input:** Extracted skills (Resume + JD)
-**Output:** Resume score, missing skills, improvement suggestions
+**Output:** JD + Resume score, missing skills,
 
 ---
 
 ### **Task 4**
 
-**Member:** Kalpesh
+**Member:** Shravani 
 **Role:** —
 **Input:** — 
 **Output:** — 

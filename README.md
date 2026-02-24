@@ -23,8 +23,8 @@
 
 **Member:** Tushar
 **Role:** Scoring & Recommendation Engineer
-**Input:** Extracted skills (Resume + JD)
-**Output:** JD + Resume score, missing skills,
+**Input:** Extracted skills (Resume , JD), threshold
+**Output:** scores, missing skills,skill matching, status: passed/failed
 
 ---
 

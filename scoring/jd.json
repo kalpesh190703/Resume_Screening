@@ -1,0 +1,15 @@
+{
+    "skills": [
+        "Python",
+        "SQL",
+        "Cloud Computing",
+        "Kubernetes",
+        "Git"
+    ],
+    "min_experience_years": 5,
+    "keywords": [
+        "Docker",
+        "Agile",
+        "Microservices"
+    ]
+}

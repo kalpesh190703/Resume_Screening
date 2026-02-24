@@ -1,15 +1,21 @@
 {
+    "name": "Python Developer Search",
+    "email": "hr@example.com",
     "skills": [
         "Python",
-        "SQL",
-        "Cloud Computing",
-        "Kubernetes",
-        "Git"
+        "Django",
+        "REST API",
+        "PostgreSQL"
     ],
-    "min_experience_years": 5,
-    "keywords": [
+    "tools": [
+        "Git",
         "Docker",
-        "Agile",
+        "Jenkins"
+    ],
+    "education": "Bachelor's in Computer Science",
+    "experience_years": 5,
+    "keywords": [
+        "Machine Learning",
         "Microservices"
     ]
 }

@@ -1,68 +1,51 @@
-# Resume Similarity Scoring System
+# Resume Similarity Scorer
 
-This project calculates similarity scores between resumes and job descriptions (JD) using a weighted scoring model.
+This tool calculates the similarity between a resume and a job description based on weighted criteria.
 
 ## Features
-- **Virtual Environment**: Set up with Python 3.11.
-- **Weighted Scoring Model**:
-  - **Skill Match (50%)**: Based on intersection of resume skills and JD skills.
-  - **Experience Match (30%)**: Based on the candidate's years of experience relative to the minimum required.
-  - **Keyword Relevance (20%)**: Based on fixed keywords in JD compared against resume text.
-- **Threshold Validation**: Compares the final score against a user-defined threshold.
-- **Structured JSON Output**: Provides complete matching details in a machine-readable format.
+- **Skill Match (40%)**: Calculates the percentage of required skills present in the resume.
+- **Tools Match (10%)**: Calculates the percentage of required tools present in the resume.
+- **Experience Match (30%)**: Compares the candidate's experience years against the JD's requirements.
+- **Keyword Relevance (20%)**: Matches JD keywords against the resume's skills, education, and name.
 
-## Fixed JSON Structure
-The system expects resumes in the following format:
-```json
-{
-  "name": "string",
-  "email": "string",
-  "skills": ["skill1", "skill2"],
-  "education": "string",
-  "experience_years": number
-}
-```
-
-Job Descriptions should follow this format:
-```json
-{
-  "skills": ["skill1", "skill2"],
-  "min_experience_years": number,
-  "keywords": ["keyword1", "keyword2"]
-}
-```
-
-## Setup and Usage
-
-1. **Activate Virtual Environment**:
+## Setup
+1. Ensure Python 3.11 is installed.
+2. The project includes a virtual environment in `venv/`.
+3. Activate the environment:
    ```powershell
    .\venv\Scripts\activate
    ```
 
-2. **Run the Scorer**:
-   ```powershell
-   python scorer.py <resume_json_path> <jd_json_path> <threshold_percentage>
-   ```
+## Usage
+Run the `scorer.py` script with the paths to your resume and JD JSON files, followed by the threshold percentage.
+
+```bash
+python scorer.py <resume_json_path> <jd_json_path> <threshold_percentage>
+```
 
 ### Example
-```powershell
-python scorer.py resume.json jd.json 50
+```bash
+python scorer.py resume.json jd.json 70
 ```
 
-## Output Format
-The tool outputs a structured JSON object:
+## JSON Structure
+The resumes and JDs should follow this structure:
+
 ```json
 {
-  "candidate_name": "John Doe",
-  "skill_match_percentage": 60.0,
-  "experience_match_percentage": 80.0,
-  "keyword_relevance_score": 33.33,
-  "final_score": 60.67,
-  "missing_skills": [
-    "kubernetes",
-    "cloud computing"
-  ],
-  "threshold": 50.0,
-  "status": "Passed"
+  "name": "Candidate Name",
+  "email": "email@example.com",
+  "skills": ["Skill 1", "Skill 2"],
+  "tools": ["Tool 1", "Tool 2"],
+  "education": "Degree Info",
+  "experience_years": 5,
+  "keywords": ["Keyword 1"]
 }
 ```
+
+## Output
+The script outputs a JSON object containing:
+- **Resume score**: The final weighted score.
+- **JD score**: The baseline score (100%).
+- **missing_skills**: List of skills required by the JD but missing from the resume.
+- **threshold_met**: Boolean indicating if the score meets the user's threshold.

@@ -69,7 +69,12 @@ if run_button:
                 "Missing Skills": ["SQL", "NLP"]
             }
         ]
-
+    #implement after the pipline app.py completed
+    #    results = run_pipeline(
+    #        job_description_file,
+    #        uploaded_resumes,
+    #        threshold
+    #    )
         df = pd.DataFrame(results)
         df["Rank"] = df["Score"].rank(ascending=False).astype(int)
 

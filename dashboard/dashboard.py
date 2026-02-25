@@ -118,6 +118,12 @@ if run_button:
                     Not Qualified
                 </span>
                 """
+        def highlight_result(row):
+            if row["Result"] == "Qualified":
+                return ["background-color: #d4edda"] * len(row)
+            else:
+                return ["background-color: #f8d7da"] * len(row)
+            
         results = main(threshold)
         if not results:
             st.error("No results returned. Check logs for errors.")
@@ -126,9 +132,14 @@ if run_button:
             df["Rank"] = df["score"].rank(ascending=False).astype(int)
             df["Result"] = df["score"].apply(lambda x: "Qualified" if x >= threshold else "Not Qualified")
             st.subheader("Candidate Resume Rankings")
-            st.dataframe(
-                df[["Rank", "filename", "score", "email_status", "Result"]].sort_values("Rank")
+            styled_df = (
+                df[["Rank", "filename", "score", "email_status", "Result"]]
+                .sort_values("Rank")
+                .reset_index(drop=True)
+                .style.apply(highlight_result, axis=1)
             )
+
+            st.dataframe(styled_df)
             st.subheader("Candidate Detailed Stats & Recommendations")
             for idx, row in df.iterrows():
                 with st.expander(f"{row['filename']} | Score: {row['score']})"):

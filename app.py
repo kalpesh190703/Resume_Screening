@@ -16,11 +16,8 @@ from email_service.email_sender import send_email
 
 INPUT_DIR = "data/input"
 OUTPUT_DIR = "data/output"
-THRESHOLD_SCORE = 70
-
 
 def main(threshold):
-
 
 
     print("\n=== AI Resume Ranking System ===\n")
@@ -35,12 +32,15 @@ def main(threshold):
     # STEP 2: Score resumes and generate recommendations
     results = []
     for resume in resumes:
+        # Use scorer.py logic
         score_result = calculate_scores(resume, jd, threshold)
         score = score_result.get("resume_score", 0)
-        recommendations = generate_recommendations(resume, jd)
+        details = score_result.get("details", {})
+        recommendations = generate_recommendations(resume, jd, threshold)
         email = resume.get("email", "")
         filename = resume.get("name", "")
         email_status = "Not Sent"
+        result_status = "Pass" if score >= threshold else "Fail"
         if score < threshold and email:
             send_email(
                 candidate_email=email,
@@ -56,6 +56,8 @@ def main(threshold):
             "email": email,
             "score": score,
             "email_status": email_status,
+            "result": result_status,
+            "details": details,
             "recommendations": recommendations
         })
     # STEP 3: Rank resumes

@@ -1,3 +1,39 @@
+# ================== PIPELINE ENTRYPOINTS ==================
+def process_resumes():
+    resumes = []
+    for file in os.listdir(INPUT_DIR):
+        if file.lower().endswith('.pdf') and not file.lower().startswith('jd'):
+            pdf_path = os.path.join(INPUT_DIR, file)
+            text = extract_text_from_pdf(pdf_path)
+            cleaned = clean_text(text)
+            try:
+                resume_json = extract_resume_json(cleaned)
+                resumes.append(resume_json)
+                # Save each resume JSON to output
+                out_name = os.path.splitext(file)[0] + ".json"
+                out_path = os.path.join(OUTPUT_DIR, out_name)
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(resume_json, f, indent=2)
+            except Exception as e:
+                print(f"Failed to extract resume from {file}: {e}")
+    return resumes
+
+def process_jd():
+    for file in os.listdir(INPUT_DIR):
+        if file.lower().startswith('jd') and file.lower().endswith('.pdf'):
+            pdf_path = os.path.join(INPUT_DIR, file)
+            text = extract_text_from_pdf(pdf_path)
+            cleaned = clean_text(text)
+            try:
+                jd_json = extract_jd_json(cleaned)
+                # Save JD JSON to output as jd.json
+                out_path = os.path.join(OUTPUT_DIR, "jd.json")
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(jd_json, f, indent=2)
+                return jd_json
+            except Exception as e:
+                print(f"Failed to extract JD from {file}: {e}")
+    return None
 import os
 import json
 from dotenv import load_dotenv
@@ -82,12 +118,23 @@ def extract_resume_json(text):
             {
                 "role": "system",
                 "content": (
-                    "You are a strict JSON extractor.\n"
-                    "Return ONLY the JSON object defined below.\n"
-                    "If data is missing, use empty string, empty list, or 0.\n\n"
+                    "You are an expert technical recruiter and ATS engine.\n\n"
+                    "TASK:\n"
+                    "1. Understand the candidate's DOMAIN (e.g., Data Science, Full Stack, Backend, ML).\n"
+                    "2. Convert resume descriptions into CANONICAL TECHNICAL SKILLS.\n\n"
+                    "STRICT RULES:\n"
+                    "- Skills MUST be concrete technologies only (languages, libraries, frameworks).\n"
+                    "- DO NOT include responsibilities or soft skills.\n"
+                    "- Normalize synonyms:\n"
+                    "  • 'EDA', 'data analysis' → Data Analysis\n"
+                    "  • 'ML models', 'predictive models' → Machine Learning\n"
+                    "  • 'CNN, RNN, LSTM' → Deep Learning\n"
+                    "- Group skills logically.\n\n"
+                    "Return ONLY valid JSON using this schema:\n"
                     "{\n"
                     "  \"name\": \"\",\n"
                     "  \"email\": \"\",\n"
+                    "  \"domain\": \"\",\n"
                     "  \"skills\": [],\n"
                     "  \"tools\": [],\n"
                     "  \"education\": \"\",\n"
@@ -97,7 +144,7 @@ def extract_resume_json(text):
             },
             {"role": "user", "content": text}
         ],
-        temperature=0
+        temperature=0.1
     )
 
     raw = completion.choices[0].message.content.strip()
@@ -111,90 +158,35 @@ def extract_jd_json(text):
             {
                 "role": "system",
                 "content": (
-                    "Return ONLY valid JSON.\n"
-                    "{"
-                    "\"name\": \"\", "
-                    "\"email\": \"\", "
-                    "\"skills\": [], "
-                    "\"tools\": [], "
-                    "\"education\": \"\", "
-                    "\"experience_years\": 0, "
-                    "\"keywords\": []"
+                    "You are a senior hiring manager and ATS system.\n\n"
+                    "TASK:\n"
+                    "1. Identify the PRIMARY DOMAIN of the job role.\n"
+                    "2. Infer REQUIRED TECHNICAL SKILLS even if indirectly mentioned.\n"
+                    "3. Normalize all skills into CANONICAL TECHNOLOGY TERMS.\n\n"
+                    "IMPORTANT RULES:\n"
+                    "- Skills must be ONLY languages, libraries, frameworks, databases, or platforms.\n"
+                    "- Do NOT include responsibilities, verbs, or soft skills.\n"
+                    "- Infer skills from context:\n"
+                    "  • 'build ML models' → Machine Learning, Scikit-learn\n"
+                    "  • 'analyze datasets' → Data Analysis, Pandas\n"
+                    "  • 'deep learning' → TensorFlow, PyTorch\n"
+                    "- Prefer INDUSTRY-STANDARD names.\n\n"
+                    "Return ONLY valid JSON using this schema:\n"
+                    "{\n"
+                    "  \"name\": \"\",\n"
+                    "  \"domain\": \"\",\n"
+                    "  \"skills\": [],\n"
+                    "  \"tools\": [],\n"
+                    "  \"education\": \"\",\n"
+                    "  \"experience_years\": 0,\n"
+                    "  \"keywords\": []\n"
                     "}"
                 )
             },
             {"role": "user", "content": text}
         ],
-        temperature=0
+        temperature=0.1
     )
 
     raw = completion.choices[0].message.content.strip()
     return safe_json_extract(raw)
-
-#used when particular folder is used for resumes and jd
-# ================== PROCESS MULTIPLE RESUMES ==================
-# def process_resumes():
-#     resumes = []
-
-#     for file in os.listdir(RESUME_DIR):
-#         if not file.lower().endswith(".pdf"):
-#             continue
-
-#         pdf_path = os.path.join(RESUME_DIR, file)
-#         print(f"📄 Processing resume: {file}")
-
-#         raw_text = extract_text_from_pdf(pdf_path)
-#         cleaned_text = clean_text(raw_text)
-#         data = extract_resume_json(cleaned_text)
-
-#         output_name = file.replace(".pdf", ".json")
-#         out_path = os.path.join(OUTPUT_DIR, output_name)
-
-#         with open(out_path, "w", encoding="utf-8") as f:
-#             json.dump(data, f, indent=2)
-
-#         resumes.append(data)
-#         print(f"✅ Saved: {output_name}")
-
-#     return resumes
-
-#used when hard coded paths are used for resumes and jd
-
-def process_resumes():
-    resumes = []
-    
-    resume_files = get_resume_files()
-    for pdf_path in resume_files:
-        file = os.path.basename(pdf_path)
-        print(f"📄 Processing resume: {file}")
-        raw_text = extract_text_from_pdf(pdf_path)
-        cleaned_text = clean_text(raw_text)
-        data = extract_resume_json(cleaned_text)
-        output_name = file.replace(".pdf", ".json")
-        out_path = os.path.join(OUTPUT_DIR, output_name)
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-        resumes.append(data)
-        print(f"✅ Saved: {output_name}")
-    return resumes
-# ================== PROCESS JD ==================
-def process_jd():
-    jd_file = get_jd_file()
-    if not jd_file:
-        print("❌ No JD PDF found in input folder.")
-        return None
-    raw_text = extract_text_from_pdf(jd_file)
-    cleaned_text = clean_text(raw_text)
-    data = extract_jd_json(cleaned_text)
-    out_path = os.path.join(OUTPUT_DIR, "jd.json")
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    print("✅ JD saved at:", os.path.abspath(out_path))
-    return data
-
-# ================== RUN ==================
-if __name__ == "__main__":
-    jd_json = process_jd()
-    resume_jsons = process_resumes()
-
-    print(f"\n🎯 Processed {len(resume_jsons)} resumes successfully.")

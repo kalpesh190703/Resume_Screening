@@ -13,8 +13,6 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-THRESHOLD_SCORE = 70.0
-
 
 # ================== SAFE JSON PARSER ==================
 def safe_json_extract(raw_response: str) -> dict:
@@ -89,14 +87,12 @@ Rules:
 
 
 # ================== MAIN RECOMMENDATION ENGINE ==================
-def generate_recommendations(resume_data: dict, jd_data: dict) -> dict:
+def generate_recommendations(resume_data: dict, jd_data: dict, threshold: float) -> dict:
     """
     Generate AI-powered resume recommendations.
     """
-
     if not jd_data:
         raise ValueError("Job description data is required.")
-
     try:
         ai_analysis = compare_resume_jd_with_ai(resume_data, jd_data)
     except Exception as e:
@@ -106,15 +102,13 @@ def generate_recommendations(resume_data: dict, jd_data: dict) -> dict:
             "error": f"AI analysis failed: {str(e)}",
             "analysis_method": "AI-powered"
         }
-
     resume_score = float(ai_analysis.get("match_score", 0))
-    is_below_threshold = resume_score < THRESHOLD_SCORE
-
+    is_below_threshold = resume_score < threshold
     output = {
         "resume_name": resume_data.get("name"),
         "resume_email": resume_data.get("email"),
         "resume_score": round(resume_score, 2),
-        "threshold": THRESHOLD_SCORE,
+        "threshold": threshold,
         "is_below_threshold": is_below_threshold,
         "threshold_met": not is_below_threshold,
         "missing_skills": ai_analysis.get("missing_skills", []),
@@ -126,7 +120,6 @@ def generate_recommendations(resume_data: dict, jd_data: dict) -> dict:
         "overall_assessment": ai_analysis.get("overall_assessment", ""),
         "analysis_method": "AI-powered"
     }
-
     return output
 
 
@@ -143,6 +136,6 @@ if __name__ == "__main__":
             resume_path = os.path.join(output_dir, fname)
             with open(resume_path, "r", encoding="utf-8") as f:
                 resume = json.load(f)
-            result = generate_recommendations(resume, jd)
+            result = generate_recommendations(resume, jd, threshold=70.0)
             print(f"\n=== Recommendations for {fname} ===")
             print(json.dumps(result, indent=2))

@@ -103,13 +103,16 @@ if run_button:
             st.dataframe(
                 df[["Rank", "filename", "score", "email_status", "Result"]].sort_values("Rank")
             )
-            st.subheader("🛠 Resume Feedback")
-            for row in results:
-                with st.expander(f"{row['filename']} – Score: {row['score']}"):
-                    if row["score"] < threshold:
-                        st.write("❌ **Below Threshold**")
-                        st.write("**Recommendations:**")
-                        for rec in row.get("recommendations", {}).get("recommendations", []):
-                            st.write(f"- {rec}")
-                    else:
-                        st.write("✅ **Qualified – No improvements needed**")
+            st.subheader("🔍 Candidate Detailed Stats & Recommendations")
+            for idx, row in df.iterrows():
+                with st.expander(f"{row['filename']} – Score: {row['score']} ({row['Result']})"):
+                    st.markdown(f"**Email:** {row['email']}")
+                    st.markdown(f"**Strengths:** {', '.join(row['recommendations'].get('strengths', []))}")
+                    st.markdown(f"**Missing Skills:** {', '.join(row['recommendations'].get('missing_skills', []))}")
+                    st.markdown(f"**Missing Tools:** {', '.join(row['recommendations'].get('missing_tools', []))}")
+                    st.markdown(f"**Missing Keywords:** {', '.join(row['recommendations'].get('missing_keywords', []))}")
+                    st.markdown(f"**Experience Gap:** {row['recommendations'].get('experience_gap', '')}")
+                    st.markdown(f"**Overall Assessment:** {row['recommendations'].get('overall_assessment', '')}")
+                    st.markdown("**Recommendations:**")
+                    for rec in row['recommendations'].get('recommendations', []):
+                        st.write(f"- {rec}")

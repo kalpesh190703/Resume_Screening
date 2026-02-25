@@ -1,0 +1,64 @@
+{
+  "name": "Shashank Malvankar",
+  "email": "malvankar.shashank@gmail.com",
+  "skills": [
+    "Java",
+    "Python",
+    "C++",
+    "HTML",
+    "CSS",
+    "React",
+    "Flask",
+    "FastAPI",
+    "SQLite",
+    "GitHub",
+    "VS Code",
+    "PyCharm",
+    "IntelliJ"
+  ],
+  "tools": [
+    "GitHub",
+    "VS Code",
+    "PyCharm",
+    "IntelliJ"
+  ],
+  "education": "ISBM College of Engineering, Pune",
+  "experience_years": 1,
+  "experience": [
+    {
+      "position": "Associate Vice President \u2013 Student Progression and Corporate Relations Cell",
+      "company": "",
+      "duration": "January 2025 \u2013 Present",
+      "responsibilities": [
+        "Directed a team of approximately 40 members, distributing responsibilities and fostering teamwork to achieve objectives.",
+        "Maintained communication with corporate recruiters and handled company requirements",
+        "Led and coordinated campus placement drives and internship programs"
+      ]
+    },
+    {
+      "position": "Project Lead - Digital Plant Brain",
+      "company": "",
+      "duration": "January 2026",
+      "responsibilities": [
+        "Automated Knowledge Ingestion: Capable of parsing unstructured manufacturing SOPs and documents using Llama-3 to automatically generate structured digital twin models of production lines.",
+        "Discrete Event Simulation: Includes a robust SimPy-based simulation engine that models stochastic production processes, including machine cycles, failure rates, and buffer capacities to predict throughput",
+        "Interactive Digital Twin: Features a dynamic React-based Graph Visualization that maps out plant entities (Machines, Belts, Buffers) and their logical connections, allowing users to explore the facility\u2019s structure intuitively",
+        "AI-Powered Insights: Provides on-demand, context-aware AI explanations for specific connections or connections within the graph, explaining the \u201dwhy\u201d behind relationships based on the source SOP.",
+        "Modern Full-Stack Architecture: Built on a high-performance FastAPI backend and a polished React/TypeScript frontend with a glassmorphism design, ensuring a responsive and user-friendly experience."
+      ]
+    },
+    {
+      "position": "Project Lead - FinText",
+      "company": "",
+      "duration": "April 2025",
+      "responsibilities": [
+        "Built a web-based personal finance dashboard that allows users to upload transaction data and track expenses efficiently",
+        "Designed and trained a machine learning model to automatically categorize transactions into spending categories",
+        "Implemented features for monthly budget suggestions and future expense predictions based on spending patterns and historical data",
+        "Developed dynamic visualizations like interactive pie charts to help users understand their financial habits at a glance",
+        "Created a clean, user-friendly interface with options for profile editing and logout confirmation, using Flask templates and custom HTML/CSS styling",
+        "Provides a pie chart to visually show monthly expenses"
+      ]
+    }
+  ]
+}

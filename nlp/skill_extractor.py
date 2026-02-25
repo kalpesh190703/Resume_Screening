@@ -1,4 +1,3 @@
-
 import os
 import json
 from dotenv import load_dotenv
@@ -9,25 +8,30 @@ import fitz  # PyMuPDF
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-BASE_DIR = "../../data"
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 INPUT_DIR = os.path.join(BASE_DIR, "input")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+
+os.makedirs(INPUT_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # RESUME_DIR = os.path.join(INPUT_DIR, "resumes")
 # JD_FILE = os.path.join(INPUT_DIR, "jd.pdf")
 
-# ================== HARD-CODED INPUT PATHS ==================
 
-RESUME_FILES = [
-    r"C:\Users\ashis\Downloads\Kalpesh_new.pdf",
-    r"C:\Users\ashis\Downloads\Ashish Rajendra Khedkar 5.pdf",
-    r"C:\Users\ashis\Downloads\Shashank_Resume_2026.pdf"
-   
-]
+# ================== DYNAMIC INPUT PATHS ==================
+def get_resume_files():
+    return [
+        os.path.join(INPUT_DIR, f)
+        for f in os.listdir(INPUT_DIR)
+        if f.lower().endswith(".pdf") and not f.lower().startswith("jd")
+    ]
 
-JD_FILE = r"C:\Users\ashis\Downloads\Document.pdf"
-
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+def get_jd_file():
+    for f in os.listdir(INPUT_DIR):
+        if f.lower().startswith("jd") and f.lower().endswith(".pdf"):
+            return os.path.join(INPUT_DIR, f)
+    return None
 
 # ================== PDF TEXT EXTRACTION ==================
 def extract_text_from_pdf(pdf_path):
@@ -158,38 +162,33 @@ def extract_jd_json(text):
 
 def process_resumes():
     resumes = []
-
-    for pdf_path in RESUME_FILES:
-        if not pdf_path.lower().endswith(".pdf"):
-            continue
-
+    
+    resume_files = get_resume_files()
+    for pdf_path in resume_files:
         file = os.path.basename(pdf_path)
         print(f"📄 Processing resume: {file}")
-
         raw_text = extract_text_from_pdf(pdf_path)
         cleaned_text = clean_text(raw_text)
         data = extract_resume_json(cleaned_text)
-
         output_name = file.replace(".pdf", ".json")
         out_path = os.path.join(OUTPUT_DIR, output_name)
-
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
-
         resumes.append(data)
         print(f"✅ Saved: {output_name}")
-
     return resumes
 # ================== PROCESS JD ==================
 def process_jd():
-    raw_text = extract_text_from_pdf(JD_FILE)
+    jd_file = get_jd_file()
+    if not jd_file:
+        print("❌ No JD PDF found in input folder.")
+        return None
+    raw_text = extract_text_from_pdf(jd_file)
     cleaned_text = clean_text(raw_text)
     data = extract_jd_json(cleaned_text)
-
     out_path = os.path.join(OUTPUT_DIR, "jd.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-
     print("✅ JD saved at:", os.path.abspath(out_path))
     return data
 

@@ -132,20 +132,17 @@ def generate_recommendations(resume_data: dict, jd_data: dict) -> dict:
 
 # ================== TEST RUN ==================
 if __name__ == "__main__":
-    sample_resume = {
-        "name": "Jane Doe",
-        "email": "jane@example.com",
-        "skills": ["Python", "Flask", "REST API"],
-        "tools": ["Git", "Docker"],
-        "experience_years": 4
-    }
-
-    sample_jd = {
-        "skills": ["Python", "Django", "REST API", "PostgreSQL"],
-        "tools": ["Git", "Docker", "Jenkins"],
-        "experience_years": 5,
-        "keywords": ["Machine Learning", "Microservices"]
-    }
-
-    result = generate_recommendations(sample_resume, sample_jd)
-    print(json.dumps(result, indent=2))
+    # Compare jd.json with each resume JSON in data/output
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_dir = os.path.join(base_dir, "data", "output")
+    jd_path = os.path.join(output_dir, "jd.json")
+    with open(jd_path, "r", encoding="utf-8") as f:
+        jd = json.load(f)
+    for fname in os.listdir(output_dir):
+        if fname.endswith(".json") and fname != "jd.json":
+            resume_path = os.path.join(output_dir, fname)
+            with open(resume_path, "r", encoding="utf-8") as f:
+                resume = json.load(f)
+            result = generate_recommendations(resume, jd)
+            print(f"\n=== Recommendations for {fname} ===")
+            print(json.dumps(result, indent=2))

@@ -1,0 +1,20 @@
+{
+  "name": "Ashish Rajendra Khedkar",
+  "email": "mailto:ashishkhedkar79@gmail.com",
+  "skills": [
+    "Programming & Tools: Python, SQL, Power BI, Excel",
+    "Data Science: Data Cleaning, EDA, Feature Engineering, Model Building",
+    "Machine Learning: Supervised & Unsupervised Learning, Classification, Clustering , Time Series",
+    "Deep Learning & AI: Neural Networks, CNN, RNN, LSTM , NLP, Transformer",
+    "Libraries: NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn, TensorFlow , Keras",
+    "Cloud: Azure (Basics of MLOps)"
+  ],
+  "tools": [
+    "Python",
+    "SQL",
+    "Power BI",
+    "Excel"
+  ],
+  "education": "Bachelor of Engineering (B.E.) \u2013 Computer Science Pune, Maharashtra Smt. Kashibai N. College of Engineering, Pune 2022 \u2013 2026",
+  "experience_years": 0
+}

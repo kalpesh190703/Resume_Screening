@@ -1,0 +1,29 @@
+{
+  "name": "Data Scientist",
+  "email": "",
+  "skills": [
+    "Python",
+    "SQL",
+    "Pandas",
+    "NumPy",
+    "Scikit-learn",
+    "TensorFlow",
+    "PyTorch",
+    "Git",
+    "Jupyter Notebook"
+  ],
+  "tools": [
+    "Python",
+    "SQL",
+    "Git",
+    "TensorFlow",
+    "PyTorch"
+  ],
+  "education": "",
+  "experience_years": 2,
+  "keywords": [
+    "Data Science",
+    "Machine Learning",
+    "Analytics"
+  ]
+}

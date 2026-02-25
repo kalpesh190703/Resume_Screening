@@ -29,10 +29,11 @@ def get_matches_with_llm(resume_items, jd_items, item_type="skills"):
     # Fallback if client is not initialized
     if not client:
         resume_set = {i.lower().strip() for i in resume_items}
-        jd_set = {i.lower().strip() for i in jd_items}
-        matched = resume_set.intersection(jd_set)
-        missing = list(jd_set - matched)
-        return matched, missing
+        jd_set_map = {i.lower().strip(): i for i in jd_items}
+        matched_keys = resume_set.intersection(set(jd_set_map.keys()))
+        matched = [jd_set_map[k] for k in matched_keys]
+        missing = [i for i in jd_items if i not in matched]
+        return set(matched), missing
 
     prompt = f"""
     COMPARE THE FOLLOWING CANDIDATE '{item_type}' WITH THE REQUIRED '{item_type}' FROM THE JOB DESCRIPTION.
@@ -132,11 +133,15 @@ def calculate_scores(resume_data, jd_data, threshold):
     if not jd_keywords:
         keyword_score = 1.0
     else:
+        # Include resume-level keywords if present
+        resume_keywords = get_list(resume_data, 'keywords')
+        
         resume_context = [
             str(resume_data.get('name', "")),
             str(resume_data.get('education', "")),
             ", ".join(resume_skills),
-            ", ".join(resume_tools)
+            ", ".join(resume_tools),
+            ", ".join(resume_keywords) # Fix: Added resume-level keywords to the context
         ]
         matched_keywords, _ = get_matches_with_llm(resume_context, jd_keywords, "keywords")
         keyword_score = len(matched_keywords) / len(jd_keywords) if jd_keywords else 1.0

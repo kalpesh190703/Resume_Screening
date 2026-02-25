@@ -62,8 +62,12 @@ if run_button:
     if not job_description_file or not uploaded_resumes:
         st.warning("Please upload a job description and at least one resume.")
     else:
-        # Save uploaded files to data/input
-        os.makedirs(DATA_INPUT_DIR, exist_ok=True)
+        # Clean input folder before saving new uploads
+        for f in os.listdir(DATA_INPUT_DIR):
+            try:
+                os.remove(os.path.join(DATA_INPUT_DIR, f))
+            except Exception:
+                pass
         # Save JD
         jd_ext = os.path.splitext(job_description_file.name)[1]
         jd_save_path = os.path.join(DATA_INPUT_DIR, f"jd{jd_ext}")
@@ -81,16 +85,23 @@ if run_button:
                 f.write(resume_file.read())
             resume_paths.append(resume_save_path)
         st.info("Files uploaded. Running screening pipeline...")
-        # Run the main pipeline
-        results = main()
+        # Clean output folder before processing
+        for f in os.listdir(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "output")):
+            try:
+                os.remove(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "output", f))
+            except Exception:
+                pass
+        # Run the main pipeline with threshold
+        results = main(threshold)
         if not results:
             st.error("No results returned. Check logs for errors.")
         else:
             df = pd.DataFrame(results)
             df["Rank"] = df["score"].rank(ascending=False).astype(int)
+            df["Result"] = df["score"].apply(lambda x: "Pass" if x >= threshold else "Fail")
             st.subheader("📊 Candidate Ranking Dashboard")
             st.dataframe(
-                df[["Rank", "filename", "score", "email_status"]].sort_values("Rank")
+                df[["Rank", "filename", "score", "email_status", "Result"]].sort_values("Rank")
             )
             st.subheader("🛠 Resume Feedback")
             for row in results:

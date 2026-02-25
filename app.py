@@ -45,10 +45,14 @@ def main(threshold):
             send_email(
                 candidate_email=email,
                 candidate_name=filename,
-                score=score,
+                score=score,  # Use dashboard score
                 threshold=threshold,
                 missing_skills=recommendations.get("missing_skills", []),
-                suggestions=recommendations.get("recommendations", [])
+                suggestions=recommendations.get("recommendations", []),
+                job_title=jd.get("name", ""),
+                strengths=recommendations.get("strengths", []),
+                experience_gap=recommendations.get("experience_gap", ""),
+                overall_assessment=recommendations.get("overall_assessment", "")
             )
             email_status = "Sent"
         results.append({

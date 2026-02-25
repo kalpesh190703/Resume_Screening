@@ -15,6 +15,10 @@ def generate_email_content(
     threshold: float,
     missing_skills: List[str],
     suggestions: List[str],
+    job_title: str = "",
+    strengths: List[str] = None,
+    experience_gap: str = "",
+    overall_assessment: str = ""
 ) -> Tuple[str, str]:
     """Generate email subject and body for a candidate.
 
@@ -24,25 +28,30 @@ def generate_email_content(
         threshold: Required threshold.
         missing_skills: List of missing skills.
         suggestions: List of improvement suggestions.
+        job_title: Job title/domain.
+        strengths: List of strengths.
+        experience_gap: Experience gap string.
+        overall_assessment: Overall assessment string.
 
     Returns:
         (subject, body) tuple.
     """
     status = "Below Threshold" if score < threshold else "Meets/Above Threshold"
+    strengths = strengths or []
 
-    subject = "Resume Screening Result"
+    subject = f"Resume Screening Result for {job_title}" if job_title else "Resume Screening Result"
     body = (
         f"Hello {candidate_name},\n\n"
-        "Thank you for your interest in the position. Here are your screening results:\n\n"
+        f"Thank you for your interest in the position{' for ' + job_title if job_title else ''}. Here are your screening results:\n\n"
         f"Resume Score: {score}\n"
         f"Threshold: {threshold}\n"
         f"Status: {status}\n\n"
-        "Missing Skills:\n"
-        f"{_format_list(missing_skills)}\n\n"
-        "Improvement Suggestions:\n"
-        f"{_format_list(suggestions)}\n\n"
+        f"Strengths:\n{_format_list(strengths)}\n\n"
+        f"Missing Skills:\n{_format_list(missing_skills)}\n\n"
+        f"Improvement Suggestions:\n{_format_list(suggestions)}\n\n"
+        f"Experience Gap: {experience_gap}\n\n"
+        f"Overall Assessment: {overall_assessment}\n\n"
         "Best regards,\n"
         "Recruitment Team\n"
     )
-
     return subject, body

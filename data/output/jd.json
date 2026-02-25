@@ -1,23 +1,23 @@
 {
   "name": "Data Scientist",
-  "email": "",
+  "domain": "Data Science",
   "skills": [
     "Python",
+    "Machine Learning",
+    "Data Analysis",
+    "Statistics",
     "SQL",
     "Pandas",
     "NumPy",
     "Scikit-learn",
     "TensorFlow",
     "PyTorch",
-    "Git",
-    "Jupyter Notebook"
+    "Matplotlib",
+    "Seaborn"
   ],
   "tools": [
-    "Python",
-    "SQL",
-    "Git",
-    "TensorFlow",
-    "PyTorch"
+    "Jupyter Notebook",
+    "Git"
   ],
   "education": "",
   "experience_years": 2,

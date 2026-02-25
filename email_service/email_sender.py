@@ -15,6 +15,10 @@ def send_email(
     threshold: float,
     missing_skills: List[str],
     suggestions: List[str],
+    job_title: str = "",
+    strengths: List[str] = None,
+    experience_gap: str = "",
+    overall_assessment: str = ""
 ) -> Dict[str, str]:
     """Send an email notification to a candidate if score is below threshold.
 
@@ -33,7 +37,11 @@ def send_email(
         return {"status": "Not Required", "message": "Score above threshold"}
 
     subject, body = generate_email_content(
-        candidate_name, score, threshold, missing_skills, suggestions
+        candidate_name, score, threshold, missing_skills, suggestions,
+        job_title=job_title,
+        strengths=strengths,
+        experience_gap=experience_gap,
+        overall_assessment=overall_assessment
     )
 
     message = MIMEMultipart()

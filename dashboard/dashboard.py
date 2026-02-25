@@ -25,8 +25,8 @@ st.set_page_config(
 # ----------------------------
 # Header
 # ----------------------------
-st.title("📄 AI Resume Screening & Ranking System")
-st.caption("Automated resume evaluation using NLP & AI")
+st.title("AI Resume Screening & Ranking System")
+st.caption("Automated resume evaluation using Advance NLP & AI")
 
 # ----------------------------
 # Sidebar – Inputs
@@ -53,7 +53,7 @@ uploaded_resumes = st.sidebar.file_uploader(
     accept_multiple_files=True
 )
 
-run_button = st.sidebar.button("🚀 Run Resume Screening")
+run_button = st.sidebar.button("Run Resume Screening")
 
 # ----------------------------
 # Main Area – Output
@@ -84,7 +84,7 @@ if run_button:
             with open(resume_save_path, "wb") as f:
                 f.write(resume_file.read())
             resume_paths.append(resume_save_path)
-        st.info("Files uploaded. Running screening pipeline...")
+        st.info("Screening Resumes and ranking...")
         # Clean output folder before processing
         for f in os.listdir(os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "output")):
             try:
@@ -92,20 +92,50 @@ if run_button:
             except Exception:
                 pass
         # Run the main pipeline with threshold
+        
+        def render_result_badge(result):
+            if result == "Qualified":
+                return """
+                <span style="
+                    background-color:#d4edda;
+                    color:#155724;
+                    padding:4px 10px;
+                    border-radius:6px;
+                    font-weight:600;
+                    font-size:13px;">
+                    Qualified
+                </span>
+                """
+            else:
+                return """
+                <span style="
+                    background-color:#f8d7da;
+                    color:#721c24;
+                    padding:4px 10px;
+                    border-radius:6px;
+                    font-weight:600;
+                    font-size:13px;">
+                    Not Qualified
+                </span>
+                """
         results = main(threshold)
         if not results:
             st.error("No results returned. Check logs for errors.")
         else:
             df = pd.DataFrame(results)
             df["Rank"] = df["score"].rank(ascending=False).astype(int)
-            df["Result"] = df["score"].apply(lambda x: "Pass" if x >= threshold else "Fail")
-            st.subheader("📊 Candidate Ranking Dashboard")
+            df["Result"] = df["score"].apply(lambda x: "Qualified" if x >= threshold else "Not Qualified")
+            st.subheader("Candidate Resume Rankings")
             st.dataframe(
                 df[["Rank", "filename", "score", "email_status", "Result"]].sort_values("Rank")
             )
-            st.subheader("🔍 Candidate Detailed Stats & Recommendations")
+            st.subheader("Candidate Detailed Stats & Recommendations")
             for idx, row in df.iterrows():
-                with st.expander(f"{row['filename']} – Score: {row['score']} ({row['Result']})"):
+                with st.expander(f"{row['filename']} | Score: {row['score']})"):
+                    st.markdown(
+                        render_result_badge(row["Result"]),
+                        unsafe_allow_html=True
+                    )
                     st.markdown(f"**Email:** {row['email']}")
                     st.markdown(f"**Strengths:** {', '.join(row['recommendations'].get('strengths', []))}")
                     st.markdown(f"**Missing Skills:** {', '.join(row['recommendations'].get('missing_skills', []))}")

@@ -1,5 +1,18 @@
 import streamlit as st
 import pandas as pd
+import os
+import importlib.util
+import sys
+
+# Dynamically import app.py from parent directory
+APP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'app.py'))
+spec = importlib.util.spec_from_file_location("app", APP_PATH)
+app_module = importlib.util.module_from_spec(spec)
+sys.modules["app"] = app_module
+spec.loader.exec_module(app_module)
+main = app_module.main
+
+DATA_INPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "input")
 
 # ----------------------------
 # Page Configuration
@@ -46,59 +59,46 @@ run_button = st.sidebar.button("🚀 Run Resume Screening")
 # Main Area – Output
 # ----------------------------
 if run_button:
-
     if not job_description_file or not uploaded_resumes:
         st.warning("Please upload a job description and at least one resume.")
     else:
-        st.success("Screening completed successfully!")
-
-        # ----------------------------
-        # Dummy Results (from backend)
-        # ----------------------------
-        results = [
-            {
-                "Candidate": "Parth Pandit",
-                "Score": 82,
-                "Email Status": "Qualified",
-                "Missing Skills": []
-            },
-            {
-                "Candidate": "Rohan Kumar",
-                "Score": 58,
-                "Email Status": "Email Sent",
-                "Missing Skills": ["SQL", "NLP"]
-            }
-        ]
-    #implement after the pipline app.py completed
-    #    results = run_pipeline(
-    #        job_description_file,
-    #        uploaded_resumes,
-    #        threshold
-    #    )
-        df = pd.DataFrame(results)
-        df["Rank"] = df["Score"].rank(ascending=False).astype(int)
-
-        # ----------------------------
-        # Ranking Dashboard
-        # ----------------------------
-        st.subheader("📊 Candidate Ranking Dashboard")
-        st.dataframe(
-            df[["Rank", "Candidate", "Score", "Email Status"]]
-            .sort_values("Rank")
-        )
-
-        # ----------------------------
-        # Detailed Feedback
-        # ----------------------------
-        st.subheader("🛠 Resume Feedback")
-
-        for row in results:
-            with st.expander(f"{row['Candidate']} – Score: {row['Score']}"):
-                if row["Score"] < threshold:
-                    st.write("❌ **Below Threshold**")
-                    st.write("**Missing Skills:**", ", ".join(row["Missing Skills"]))
-                    st.write("**Suggestions:**")
-                    st.write("- Add relevant projects")
-                    st.write("- Include measurable achievements")
-                else:
-                    st.write("✅ **Qualified – No improvements needed**")
+        # Save uploaded files to data/input
+        os.makedirs(DATA_INPUT_DIR, exist_ok=True)
+        # Save JD
+        jd_ext = os.path.splitext(job_description_file.name)[1]
+        jd_save_path = os.path.join(DATA_INPUT_DIR, f"jd{jd_ext}")
+        with open(jd_save_path, "wb") as f:
+            f.write(job_description_file.read())
+        # Save resumes
+        resume_paths = []
+        resumes_to_save = uploaded_resumes
+        if not isinstance(resumes_to_save, list):
+            resumes_to_save = [resumes_to_save]
+        for resume_file in resumes_to_save:
+            resume_ext = os.path.splitext(resume_file.name)[1]
+            resume_save_path = os.path.join(DATA_INPUT_DIR, resume_file.name)
+            with open(resume_save_path, "wb") as f:
+                f.write(resume_file.read())
+            resume_paths.append(resume_save_path)
+        st.info("Files uploaded. Running screening pipeline...")
+        # Run the main pipeline
+        results = main()
+        if not results:
+            st.error("No results returned. Check logs for errors.")
+        else:
+            df = pd.DataFrame(results)
+            df["Rank"] = df["score"].rank(ascending=False).astype(int)
+            st.subheader("📊 Candidate Ranking Dashboard")
+            st.dataframe(
+                df[["Rank", "filename", "score", "email_status"]].sort_values("Rank")
+            )
+            st.subheader("🛠 Resume Feedback")
+            for row in results:
+                with st.expander(f"{row['filename']} – Score: {row['score']}"):
+                    if row["score"] < threshold:
+                        st.write("❌ **Below Threshold**")
+                        st.write("**Recommendations:**")
+                        for rec in row.get("recommendations", {}).get("recommendations", []):
+                            st.write(f"- {rec}")
+                    else:
+                        st.write("✅ **Qualified – No improvements needed**")

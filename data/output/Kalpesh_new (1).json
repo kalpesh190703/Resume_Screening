@@ -1,0 +1,20 @@
+{
+  "name": "Kalpesh Gangurde",
+  "email": "kvgangurde19@gmail.com",
+  "domain": "Computer Engineering",
+  "skills": [
+    "Python",
+    "Machine Learning",
+    "MySQL",
+    "Power BI",
+    "HTML",
+    "CSS",
+    "OOPS"
+  ],
+  "tools": [
+    "Pipeline",
+    "Linear Regression"
+  ],
+  "education": "Bachelor Of Engineering in Computer",
+  "experience_years": 0
+}

@@ -1,4 +1,4 @@
-# ================== PIPELINE ENTRYPOINTS ==================
+
 def process_resumes():
     resumes = []
     for file in os.listdir(INPUT_DIR):
@@ -34,6 +34,7 @@ def process_jd():
             except Exception as e:
                 print(f"Failed to extract JD from {file}: {e}")
     return None
+
 import os
 import json
 from dotenv import load_dotenv

@@ -1,29 +1,39 @@
 {
-  "name": "Data Scientist",
-  "domain": "Data Science",
+  "name": "Backend Engineer",
+  "domain": "Software Development",
   "skills": [
+    "JavaScript",
+    "Node.js",
     "Python",
-    "Machine Learning",
-    "Data Analysis",
-    "Statistics",
-    "SQL",
-    "Pandas",
-    "NumPy",
-    "Scikit-learn",
-    "TensorFlow",
-    "PyTorch",
-    "Matplotlib",
-    "Seaborn"
+    "Java",
+    "Express.js",
+    "NestJS",
+    "FastAPI",
+    "Spring Boot",
+    "RESTful API",
+    "PostgreSQL",
+    "MySQL",
+    "MongoDB",
+    "Redis",
+    "Prisma",
+    "Sequelize",
+    "SQLAlchemy",
+    "JWT",
+    "OAuth",
+    "Input validation",
+    "API security"
   ],
   "tools": [
-    "Jupyter Notebook",
-    "Git"
+    "Git",
+    "Docker"
   ],
   "education": "",
-  "experience_years": 2,
+  "experience_years": 0,
   "keywords": [
-    "Data Science",
-    "Machine Learning",
-    "Analytics"
+    "Backend Development",
+    "API Design",
+    "Database Management",
+    "Security",
+    "Git Workflows"
   ]
 }
